@@ -65,7 +65,26 @@ public class PythonObject {
      * @throws PythonAttributeException When there is no attribute on this object with that name.
      */
     public final PythonObject get(String attrName) throws PythonAttributeException {
-        throw new UnsupportedOperationException("not implemented yet");
+        if (attrs.keySet().contains(attrName)) {
+            return attrs.get(attrName);
+        }
+
+        for (PythonObject obj : getMRO()) {
+            if (obj != this) {
+                try {
+                    return obj.get(attrName);
+                } catch (PythonAttributeException e) {
+                    continue;
+                }
+            }
+        }
+
+        if (this.getType() != null) {
+            throw new PythonAttributeException(this, attrName);
+        } else {
+            throw new PythonAttributeException(new PythonObject(new PythonType("type", null)), attrName);
+        }
+        
     }
 
     /**
@@ -77,11 +96,11 @@ public class PythonObject {
      * @param value Its new value
      */
     public final void set(String attrName, PythonObject value) {
-        throw new UnsupportedOperationException("not implemented yet");
+        attrs.put(attrName, value);
     }
 
     @Override
     public String toString() {
         return "PythonObject<" + getType().getName() + ">" + attrs;
-    }
+    }   
 }
