@@ -163,9 +163,16 @@ class JavaNullType(JavaType):
     Null acts as though it is a subtype of all object types. However, it raises an exception for any
     attempt to look up a method.
     """
+    is_object_type = True   
+
     def __init__(self):
         super().__init__("null")
 
+    def is_subtype_of(self, other):
+        return other.is_object_type
+
+    def method_named(self, method_name):
+        raise NoSuchJavaMethod("Cannot invoke method {0}() on null".format(method_name))
 
 class JavaTypeError(Exception):
     """Indicates a compile-time type error in an expression.
@@ -198,32 +205,3 @@ class JavaBuiltInTypes:
     )
     OBJECT.add_method(JavaMethod("equals", parameter_types=[OBJECT], return_type=BOOLEAN))
     OBJECT.add_method(JavaMethod("hashCode", return_type=INT))
-
-# if __name__ == "__main__":
-    
-#     point = JavaObjectType(
-#         "Point",
-#         constructor=JavaConstructor([JavaBuiltInTypes.DOUBLE, JavaBuiltInTypes.DOUBLE])
-#     )
-#     point.add_method(
-#         JavaMethod("getX",
-#             return_type=JavaBuiltInTypes.DOUBLE))
-#     point.add_method(
-#         JavaMethod("getY",
-#             return_type=JavaBuiltInTypes.DOUBLE))
-#     point.add_method(
-#         JavaMethod("add",
-#             parameter_types=[point],
-#             return_type=point))
-    
-#     paint = JavaObjectType(
-#         "Paint",direct_supertypes=[point]
-#     )
-
-#     color = JavaObjectType(
-#         "Color",
-#         direct_supertypes=[paint],
-#         constructor=JavaConstructor([int, int, int])
-#     )
-
-#     print(color.is_subtype_of(JavaBuiltInTypes.OBJECT))
