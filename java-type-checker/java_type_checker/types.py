@@ -88,6 +88,8 @@ class JavaPrimitiveType(JavaType):
 
     Primitive types are not object types and do not have methods.
     """
+    def is_subtype_of(self, other):
+        return other == self
 
 
 class JavaObjectType(JavaType):
@@ -132,6 +134,17 @@ class JavaObjectType(JavaType):
                 except NoSuchJavaMethod:
                     pass
             raise NoSuchJavaMethod("{0} has no method named {1}".format(self.name, name))
+    
+    def is_subtype_of(self, other):
+        if other == self:
+            return True
+
+        for supertype in self.direct_supertypes:
+            if supertype.is_subtype_of(other):
+                return True
+
+        return False
+
 
 
 class JavaVoidType(JavaType):
@@ -185,3 +198,32 @@ class JavaBuiltInTypes:
     )
     OBJECT.add_method(JavaMethod("equals", parameter_types=[OBJECT], return_type=BOOLEAN))
     OBJECT.add_method(JavaMethod("hashCode", return_type=INT))
+
+# if __name__ == "__main__":
+    
+#     point = JavaObjectType(
+#         "Point",
+#         constructor=JavaConstructor([JavaBuiltInTypes.DOUBLE, JavaBuiltInTypes.DOUBLE])
+#     )
+#     point.add_method(
+#         JavaMethod("getX",
+#             return_type=JavaBuiltInTypes.DOUBLE))
+#     point.add_method(
+#         JavaMethod("getY",
+#             return_type=JavaBuiltInTypes.DOUBLE))
+#     point.add_method(
+#         JavaMethod("add",
+#             parameter_types=[point],
+#             return_type=point))
+    
+#     paint = JavaObjectType(
+#         "Paint",direct_supertypes=[point]
+#     )
+
+#     color = JavaObjectType(
+#         "Color",
+#         direct_supertypes=[paint],
+#         constructor=JavaConstructor([int, int, int])
+#     )
+
+#     print(color.is_subtype_of(JavaBuiltInTypes.OBJECT))
